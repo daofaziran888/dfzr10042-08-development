@@ -16,7 +16,9 @@
 │   └── vite.config.ts        dev server 配置（open: false）
 ├── backend/                  FastAPI（Python） 后端
 │   ├── app/routers/resource.py  通用查询/导出/登记/动作接口
+│   ├── app/routers/cohort_ops.py 同期群未回访回查与运营圈选接口
 │   ├── app/services/<key>.py    每个模块独立领域逻辑
+│   ├── app/services/cohort_ops.py 缺席者回查、范围领取、名单组装与回算
 │   ├── app/services/base.py     共享服务骨架
 │   └── app/store.py          内存数据仓库与示例数据
 ├── .gitignore
@@ -80,6 +82,20 @@ npm run dev
   `frontend/src/domain/<模块>.ts`，用于承载真实业务差异并维持36题位容量。
 - 列表接口统一返回 `{ items, total, page, size }`，动作接口统一返回 `{ ok, message }`。
 - 状态流转只允许在 `app/services` 里改，路由层不做业务判断。
+
+## 同期群 · 未回访回查与运营圈选
+
+同期群在留存率之外提供缺席者运营链路（`/api/cohort_analysis/ops/*`，前端入口在
+同期群分析工作台下方）：
+
+- `GET /members` 按观察日 + 渠道查询实际入群成员，逐行标注回访状态与回访批次；
+- `GET /absent` 回查未回访成员清单，已回访人数与候选行都标出采用的回访批次；
+- `POST /claims` 领取未回访范围，以当前回访批次为领取边界快照候选；
+- `POST /claims/{id}/oplists` 只在该批候选内按用户属性圈选组装运营名单，
+  每轮领取只生成一份；
+- `POST /revisits` + `POST /revisits/confirm` 补送并确认迟到回访，确认后回访批次
+  推进，新领取的范围不再包含已确认回访成员，已生成的名单仍按领取边界执行；
+- `GET /oplists/{id}/source` 按名单实际采用的回访批次与渠道回算来源并校验一致性。
 
 领域：数据工程
 子方向：数据分析与数据应用

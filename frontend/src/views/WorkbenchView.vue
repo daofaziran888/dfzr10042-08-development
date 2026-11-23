@@ -70,6 +70,8 @@
       </tbody>
     </table>
 
+    <CohortOpsPanel v-if="isCohortModule" />
+
     <div v-if="showCreate" class="modal-backdrop" data-testid="create-modal">
       <form class="modal" @submit.prevent="submitCreate">
         <h3>登记{{ meta.entity }}</h3>
@@ -104,9 +106,11 @@ import {
   runAction as applyAction,
 } from '@/api/backend-service'
 import type { EntryRow } from '@/data/types'
+import CohortOpsPanel from '@/views/CohortOpsPanel.vue'
 
 const props = defineProps<{ moduleKey: string }>()
 const meta = moduleMeta(props.moduleKey)
+const isCohortModule = props.moduleKey === 'cohort_analysis'
 const rows = ref<EntryRow[]>([])
 const total = ref(0)
 const errorMessage = ref('')
